@@ -2,6 +2,18 @@ from django.db import models
 from PIL import Image
 # Create your models here.
 """patients models"""
+
+class CatLeve(models.Model):
+    Name = models.CharField(max_length=500)
+    Date = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        ordering = ['-Date']
+
+    def __str__(self):
+        return self.Name
+
+
+
 class patients(models.Model):
     Firstname = models.CharField(max_length=500)
     Othername = models.CharField(max_length=500)
@@ -9,6 +21,8 @@ class patients(models.Model):
     password = models.CharField(max_length=50)
     image = models.ImageField(default='T.png', upload_to='profile_pic')
     med_history = models.FileField(null=True, blank=True, upload_to='profile_pic/')
+    category_level = models.ForeignKey(CatLeve, null=True, blank=True, on_delete=models.SET_NULL)
+
 
 
 
@@ -47,6 +61,8 @@ class Doctors(models.Model):
     category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.CASCADE)
     image = models.ImageField(default='T.png', upload_to='profile_pic')
     status = models.CharField(max_length=400, default="False")
+    category_level = models.ForeignKey(CatLeve, null=True, blank=True, on_delete=models.SET_NULL)
+
 
 
     def __str__(self):
@@ -70,6 +86,8 @@ class Pham_model(models.Model):
     password = models.CharField(max_length=500)
     #category = models.ForeignKey(category_ph, null=True, blank=True, on_delete=models.SET_NULL)
     image = models.ImageField(default='T.png', upload_to='profile_pic')
+    category_level = models.ForeignKey(CatLeve, null=True, blank=True, on_delete=models.SET_NULL)
+
 
 
     def __str__(self):
@@ -93,6 +111,8 @@ class accountant_model(models.Model):
     password = models.CharField(max_length=500)
     #category = models.ForeignKey(category_ph, null=True, blank=True, on_delete=models.SET_NULL)
     image = models.ImageField(default='T.png', upload_to='profile_pic')
+    category_level = models.ForeignKey(CatLeve, null=True, blank=True, on_delete=models.SET_NULL)
+
 
 
     def __str__(self):

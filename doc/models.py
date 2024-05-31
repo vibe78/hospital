@@ -2,8 +2,9 @@ from django.db import models
 from PIL import Image
 from decimal import Decimal
 from user.models import Category
-from user.models import Doctors,patients,Pham_model
+from user.models import Doctors,patients,Pham_model,CatLeve
 import uuid
+
 # Create your models here.
 
 
@@ -133,6 +134,8 @@ class NurseModels(models.Model):
     email = models.CharField(max_length=500, null=True,blank=True)
     password = models.CharField(max_length=500,null=True,blank=True)
     time = models.DateTimeField(auto_now_add=True)
+    category_level = models.ForeignKey(CatLeve, null=True, blank=True, on_delete=models.SET_NULL)
+
 
     class Meta:
         ordering = ['-time',]

@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
 from django.http import HttpResponseRedirect
 from .models import patients
-from .models import Doctors,Pham_model
+from .models import Doctors,Pham_model,CatLeve
 from doc.models import Category,Medical_test,Send_report_to_pharmacy,Notification
 from doc.models import Book_Apointment_model,confirm_drug,NurseModels,Vital_Signs
 from doc.forms import ask_form
@@ -69,12 +69,15 @@ def Doc_logout_view(request):
 
 '''User signup'''
 def user_signup_view(request):
+    ca = CatLeve.objects.get(Name='Patient')
+
     if request.method == "POST":
         FirstN = request.POST['FirstN']
         otherN = request.POST['otherN']
         email = request.POST['email']
         pas = request.POST['pas']
         conP = request.POST['conP']
+        #level = request.POST['level']
         print(pas)
         print(conP)
 
@@ -92,27 +95,89 @@ def user_signup_view(request):
             add_p.save()
             add_p.password = pas
             add_p.save()
+            add_p.category_level = ca
+            add_p.save()
             return HttpResponseRedirect(reverse('log:patients_login'))
     return render(request,'user-signup.html')
 
 def patients_login_view(request):
     name=None
+
     if request.method == "POST":
-        email = request.POST['email']
-        passe = request.POST['passe']
-        if not patients.objects.filter(Email=email):
-            messages.info(request, "Incorrect Email!")
-        elif not patients.objects.filter(Email=email, password=passe):
-            messages.info(request, "Incorrect Password!")
-        else:
-            keys=patients.objects.get(Email=email, password=passe)
-            keep = str(keys)
-            request.session['name'] = keep
-            if request.session.has_key('name'):
-                messages.info(request, "Logedin!")
-                return HttpResponseRedirect(reverse('log:patients_success'))
+        ca = CatLeve.objects.get(Name='Patient')
+        catwo = CatLeve.objects.get(Name='Dr')
+        cathree = CatLeve.objects.get(Name='pharmacist')
+        cafour = CatLeve.objects.get(Name='Nurse')
+
+        if patients.objects.get(category_level=ca):
+            email = request.POST['email']
+            passe = request.POST['passe']
+            if not patients.objects.filter(Email=email):
+                messages.info(request, "Incorrect Email!")
+            elif not patients.objects.filter(Email=email, password=passe):
+                messages.info(request, "Incorrect Password!")
             else:
-                return render(request, 'patients_login.html')
+                keys = patients.objects.get(Email=email, password=passe)
+                keep = str(keys)
+                request.session['name'] = keep
+                if request.session.has_key('name'):
+                    messages.info(request, "Logedin!")
+                    return HttpResponseRedirect(reverse('log:patients_success'))
+                else:
+                    return render(request, 'patients_login.html')
+
+        if Doctors.objects.get(category_level=catwo):
+            email = request.POST['email']
+            passe = request.POST['passe']
+            if not Doctors.objects.filter(email=email):
+                messages.info(request, "Incorrect Email")
+            elif not Doctors.objects.filter(email=email, password=passe):
+                messages.info(request, "Incorrect Password")
+            else:
+                king = Doctors.objects.get(email=email, password=passe)
+                k = str(king)
+                request.session['pip'] = k
+                if request.session.has_key('pip'):
+                    messages.info(request, "logedin !")
+                    log = Doctors.objects.filter(email=email).update(status="True")
+                    return HttpResponseRedirect(reverse('log:doctor-main-success'))
+                else:
+                    return render(request, 'doctor-login.html')
+
+        if Pham_model.objects.get(category_level=cathree):
+            email = request.POST['email']
+            passe = request.POST['passe']
+            if not Pham_model.objects.filter(email=email):
+                messages.info(request, "Incorrect Email")
+            elif not Pham_model.objects.filter(email=email, password=passe):
+                messages.info(request, "Incorrect Password")
+            else:
+                king = Pham_model.objects.get(email=email, password=passe)
+                k = str(king)
+                request.session['pharm'] = k
+                if request.session.has_key('pharm'):
+                    messages.info(request, "logedin !")
+                    return HttpResponseRedirect(reverse('log:pharmacy-home-view'))
+                else:
+                    return render(request, 'doctor-login.html')
+
+        if NurseModels.objects.get(category_level=cafour):
+            email = request.POST['email']
+            passe = request.POST['passe']
+            if not NurseModels.objects.filter(email=email):
+                messages.info(request, "Incorrect Email!")
+            elif not NurseModels.objects.filter(email=email, password=passe):
+                messages.info(request, "Incorrect Password!")
+            else:
+                keys = NurseModels.objects.get(email=email, password=passe)
+                keep = str(keys)
+                request.session['nurse'] = keep
+                if request.session.has_key('nurse'):
+                    messages.info(request, "Logedin!")
+                    return HttpResponseRedirect(reverse('log:Nurse_dashboard'))
+                else:
+                    return render(request, 'patients_login.html')
+
     return render(request,'patients_login.html')
 
 
